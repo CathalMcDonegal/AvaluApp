@@ -1,0 +1,11 @@
+{
+  "name": "AvaluApp",
+  "short_name": "AvaluApp",
+  "description": "Gestió i avaluació d'alumnes",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#0f172a",
+  "lang": "ca",
+  "icons": [{"src":"./assets/icon.svg","sizes":"any","type":"image/svg+xml"}]
+}
