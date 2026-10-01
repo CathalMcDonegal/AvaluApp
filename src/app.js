@@ -51,13 +51,15 @@ function parseExcelRows(rows){
  const headers=rows[0].map(normalizeHeader);
  const find=(names)=>{const i=headers.findIndex(h=>names.includes(h));return i};
  const first=find(['nom','nombre','name','first name','firstname']);
- const last=find(['cognoms','apellidos','surname','last name','lastname']);
+ const last=find(['cognoms','apellidos','surname','last name','lastname','1r cognom','primer cognom','1er cognom','primer apellido','1r apellido']);
+ const last2=find(['2n cognom','segon cognom','2on cognom','segundo apellido','2n apellido']);
  const full=find(['nom i cognoms','nombre y apellidos','alumne','alumno','student','nom complet']);
  const number=find(['numero','numero alumne','num alumne','n alumne','student number','id']);
  return rows.slice(1).map(r=>{
    let firstName='',lastName='';
    if(first>=0) firstName=String(r[first]??'').trim();
    if(last>=0) lastName=String(r[last]??'').trim();
+   if(last2>=0){const secondLast=String(r[last2]??'').trim();lastName=[lastName,secondLast].filter(Boolean).join(' ');}
    // Si la columna "Nom" conté en realitat el nom complet, separem nom i cognoms.
    if(first>=0 && last<0 && full<0 && firstName.includes(' ')){
      const parts=firstName.split(/\\s+/).filter(Boolean);
