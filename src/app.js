@@ -58,6 +58,12 @@ function parseExcelRows(rows){
    let firstName='',lastName='';
    if(first>=0) firstName=String(r[first]??'').trim();
    if(last>=0) lastName=String(r[last]??'').trim();
+   // Si la columna "Nom" conté en realitat el nom complet, separem nom i cognoms.
+   if(first>=0 && last<0 && full<0 && firstName.includes(' ')){
+     const parts=firstName.split(/\\s+/).filter(Boolean);
+     firstName=parts.shift()||'';
+     lastName=parts.join(' ');
+   }
    if(!firstName&&!lastName&&full>=0){
      const fullName=String(r[full]??'').trim(), parts=fullName.split(/\\s+/);
      if(parts.length>1){firstName=parts.shift();lastName=parts.join(' ')}else firstName=fullName;
