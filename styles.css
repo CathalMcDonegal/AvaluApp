@@ -44,3 +44,34 @@ body{background:linear-gradient(135deg,#fffaf5 0%,#f8fbff 48%,#fff7fb 100%)}.her
   .container{width:min(1380px,calc(100% - 80px))}
   .course-grid,.group-grid,.student-list{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
+
+/* Paleta més fosca i contrastada */
+:root{color:#0f172a;background:#e8edf3}
+body{background:linear-gradient(135deg,#e8edf3 0%,#eef2f7 50%,#e9e7ef 100%)}
+.topbar{background:#111827;border-bottom-color:#273449;color:#f8fafc}
+.topbar .brand{color:#f8fafc}
+.topbar .brand-mark{background:#1e293b;border-color:#334155;color:#fff}
+.topbar .back{background:#1e293b;color:#f8fafc;border:1px solid #334155}
+.topbar .secondary{background:#1e293b;color:#f8fafc;border-color:#475569}
+.topbar .secondary:hover{background:#273449}
+.hero{background:linear-gradient(135deg,#f8fafc 0%,#e9eef5 58%,#e8e7ef 100%);border-color:#cbd5e1}
+.eyebrow{color:#6d28d9}
+.muted{color:#475569}
+.primary{background:linear-gradient(135deg,#4c1d95,#9d174d)}
+.secondary{background:#e2e8f0;color:#1e293b;border-color:#cbd5e1}
+.card,.stat{border-color:#cbd5e1}
+.card-icon{background:#e2e8f0}
+.group-badge{background:linear-gradient(135deg,#7c2d12,#9f1239)}
+.course-card:hover{border-color:#94a3b8;box-shadow:0 8px 25px #0f172a18}
+.student-row:hover{border-color:#a78bfa;box-shadow:0 8px 25px #0f172a20}
+.student-link{color:#0f172a}
+.class-grid-table th{background:#e2e8f0;color:#334155}
+.class-grid-table th,.class-grid-table td{border-color:#cbd5e1}
+.class-grid-table .student-col{background:#f8fafc}
+.class-grid-table th.student-col{background:#e2e8f0}
+.grid-select{border-color:#94a3b8;color:#1e293b}
+.grid-note{background:linear-gradient(90deg,#ede9fe,#f1f5f9);border-bottom-color:#cbd5e1}
+.grade-btn{border-color:#cbd5e1;color:#334155}
+.grade-btn:hover{border-color:#7c3aed;background:#f5f3ff}
+.install-app{white-space:nowrap}
+.topbar-spacer{flex:1}
