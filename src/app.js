@@ -9,7 +9,7 @@ function reportData(c,g,s,term){
  const vals=s.assessments[term]||{};
  const termNames={1:'1a Avaluació',2:'2a Avaluació'};
  const rows=items.map(i=>({code:i.code,name:i.name,category:i.category||'',value:String(vals[i.id]?.value||'').toUpperCase(),descriptor:i.descriptors?.[String(vals[i.id]?.value||'').toUpperCase()]||''}));
- return {items,vals,rows,termName:termNames[term],studentName:(s.firstName+' '+s.lastName).trim(),course:c.name,group:g.name,year:c.year,observations:s.observations[term]||''};
+ return {items,vals,rows,termName:termNames[term],studentName:(s.firstName+' '+s.lastName).trim(),course:c.name,group:g.name,year:c.year,observations:s.observations[term]||'',finalGrade:s.finalGrades?.[term]||'',aaPi:s.aaPi?.[term]||''};
 }
 function downloadDoc(buffer,name){
  const blob=new Blob([buffer],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
@@ -29,6 +29,7 @@ async function generateWord(c,g,s,term){
    new Paragraph({children:[new TextRun({text:'Alumne: ',bold:true}),new TextRun({text:d.studentName})]}),
    new Paragraph({children:[new TextRun({text:'Curs: ',bold:true}),new TextRun({text:d.course}),new TextRun({text:'    Classe: ',bold:true}),new TextRun({text:d.group})]}),
    new Paragraph({children:[new TextRun({text:'Curs acadèmic: ',bold:true}),new TextRun({text:d.year})]}),
+   new Paragraph({children:[new TextRun({text:'AA/PI: ',bold:true}),new TextRun({text:d.aaPi||'—'}),new TextRun({text:'    FINAL: ',bold:true}),new TextRun({text:d.finalGrade||'—'})]}),
    new Paragraph({text:''}),
    new Table({width:{size:100,type:WidthType.PERCENTAGE},rows}),
    new Paragraph({text:''}),
@@ -127,7 +128,7 @@ function importExcel(courseId,groupId){
  input.click();
 }
 function addStudent(courseId,groupId){const first=prompt('Nom de l’alumne');if(!first?.trim())return;store.addStudent(groupId,{firstName:first.trim(),lastName:prompt('Cognoms')||''});course(courseId)}
-function gradeChoices(selected){return ['', 'AE','AN','AS','NA','AE*','AN*','AS*','NA*','(NA)','-'].map(v=>`<option value="${v}" ${selected===v?'selected':''}>${v||'—'}</option>`).join('')}
+function gradeChoices(selected){return ['', 'AE','AN','AS','NA','AE*','AN*','AS*','NA*','(AE)','(AN)','(AS)','(NA)','-'].map(v=>`<option value="${v}" ${selected===v?'selected':''}>${v||'—'}</option>`).join('')}
 function classGrid(courseId,groupId){
  const c=store.getCourses().find(x=>x.id===courseId),g=c.groups.find(x=>x.id===groupId);let term='1';
  const tabs={1:'1a Avaluació',2:'2a Avaluació'};
