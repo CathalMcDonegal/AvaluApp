@@ -3,9 +3,14 @@
   "short_name": "AvaluApp",
   "description": "Gestió i avaluació d'alumnes",
   "start_url": "./",
+  "scope": "./",
   "display": "standalone",
+  "orientation": "landscape-primary",
   "background_color": "#f8fafc",
-  "theme_color": "#0f172a",
+  "theme_color": "#7c3aed",
   "lang": "ca",
-  "icons": [{"src":"./assets/icon.svg","sizes":"any","type":"image/svg+xml"}]
+  "categories": ["education", "productivity"],
+  "icons": [
+    {"src":"./assets/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+  ]
 }
