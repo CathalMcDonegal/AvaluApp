@@ -50,7 +50,7 @@ function course(id){
  document.querySelectorAll('.open').forEach(b=>b.onclick=()=>group(id,b.dataset.id));
  document.querySelectorAll('.delete-group').forEach(b=>b.onclick=e=>{e.stopPropagation();if(confirm('Esborrar aquesta classe i tots els seus alumnes? Aquesta acció no es pot desfer.')){store.deleteGroup(id,b.dataset.id);course(id)}})
 }
-function normalizeHeader(v){return String(v||'').toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim()}
+function normalizeHeader(v){return String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim()}
 function parseRubricSheet(rows,term){
  if(!rows?.length)return null;
  const codes=['AE','AN','AS','NA'];
