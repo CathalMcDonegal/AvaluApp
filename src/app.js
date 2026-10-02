@@ -78,51 +78,75 @@ async function importRubric(courseId){
  input.onchange=async()=>{
   const file=input.files?.[0];if(!file)return;
   try{
-   const data=await file.arrayBuffer(),wb=XLSX.read(data,{type:'array'});
+   const XLSXLib=await ensureXlsx();
+   const data=await file.arrayBuffer(),wb=XLSXLib.read(data,{type:'array'});
    const sheets=wb.SheetNames;
    const rubric={};
    const termSheets=[sheets.find(s=>normalizeHeader(s).includes('1r')),sheets.find(s=>normalizeHeader(s).includes('2n'))];
    if(!termSheets[0]||!termSheets[1]){alert('No he trobat les pestanyes de la 1a i 2a avaluació.');return}
-   termSheets.forEach((sheet,idx)=>{const rows=XLSX.utils.sheet_to_json(wb.Sheets[sheet],{header:1,defval:''});rubric[idx+1]=parseRubricSheet(rows,idx+1)});
+   termSheets.forEach((sheet,idx)=>{const rows=XLSXLib.utils.sheet_to_json(wb.Sheets[sheet],{header:1,defval:''});rubric[idx+1]=parseRubricSheet(rows,idx+1)});
    if(!rubric[1]?.items.length&&!rubric[2]?.items.length){alert('No he trobat ítems de gradació a la graella.');return}
    store.setRubric(courseId,rubric);alert('Graella de gradació importada i vinculada al curs. Les seves classes la compartiran.');course(courseId);
   }catch(e){console.error(e);alert('No s’ha pogut llegir la graella.')}
  };
  input.click();
 }
+function splitStudentName(raw){
+ const value=String(raw||'').trim();
+ if(!value)return {firstName:'',lastName:''};
+ // Format habitual de llistats escolars: COGNOMS, NOM.
+ if(value.includes(',')){
+   const parts=value.split(',');
+   const lastName=parts.shift().trim();
+   const firstName=parts.join(',').trim();
+   if(firstName)return {firstName,lastName};
+ }
+ const parts=value.split(/\s+/).filter(Boolean);
+ if(parts.length===1)return {firstName:parts[0],lastName:''};
+ return {firstName:parts.shift(),lastName:parts.join(' ')};
+}
 function parseExcelRows(rows){
  if(!rows.length)return [];
  const headers=rows[0].map(normalizeHeader);
- const find=(names)=>{const i=headers.findIndex(h=>names.includes(h));return i};
- const first=find(['nom','nombre','name','first name','firstname']);
+ const find=(names)=>headers.findIndex(h=>names.includes(h));
+ const first=find(['nom','nombre','name','first name','firstname','nom alumne','nombre alumno']);
  const last=find(['cognoms','apellidos','surname','last name','lastname','1r cognom','primer cognom','1er cognom','primer apellido','1r apellido']);
  const last2=find(['2n cognom','segon cognom','2on cognom','segundo apellido','2n apellido']);
- const full=find(['nom i cognoms','nombre y apellidos','alumne','alumno','student','nom complet']);
+ const full=find(['nom i cognoms','nom i cognom','nombre y apellidos','nombre y apellido','alumne','alumno','student','nom complet','nombre completo']);
  const number=find(['numero','numero alumne','num alumne','n alumne','student number','id']);
  return rows.slice(1).map(r=>{
    let firstName='',lastName='';
    if(first>=0) firstName=String(r[first]??'').trim();
    if(last>=0) lastName=String(r[last]??'').trim();
    if(last2>=0){const secondLast=String(r[last2]??'').trim();lastName=[lastName,secondLast].filter(Boolean).join(' ');}
-   // Si la columna "Nom" conté en realitat el nom complet, separem nom i cognoms.
-   if(first>=0 && last<0 && full<0 && firstName.includes(' ')){
-     const parts=firstName.split(/\\s+/).filter(Boolean);
-     firstName=parts.shift()||'';
-     lastName=parts.join(' ');
+   if(first>=0 && last<0){
+     const parsed=splitStudentName(firstName);
+     firstName=parsed.firstName;lastName=parsed.lastName;
    }
    if(!firstName&&!lastName&&full>=0){
-     const fullName=String(r[full]??'').trim(), parts=fullName.split(/\\s+/);
-     if(parts.length>1){firstName=parts.shift();lastName=parts.join(' ')}else firstName=fullName;
+     const parsed=splitStudentName(String(r[full]??''));
+     firstName=parsed.firstName;lastName=parsed.lastName;
    }
    return {firstName,lastName,studentNumber:number>=0?String(r[number]??'').trim():''};
  }).filter(x=>(x.firstName+' '+x.lastName).trim());
+}
+async function ensureXlsx(){
+ if(window.XLSX)return window.XLSX;
+ await new Promise((resolve,reject)=>{
+   const script=document.createElement('script');
+   script.src='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+   script.onload=resolve;script.onerror=reject;document.head.appendChild(script);
+ });
+ if(!window.XLSX)throw new Error('XLSX no disponible');
+ return window.XLSX;
 }
 function importExcel(courseId,groupId){
  const input=document.createElement('input');input.type='file';input.accept='.xlsx,.xls,.csv';
  input.onchange=async()=>{
   const file=input.files?.[0];if(!file)return;
   try{
-   const data=await file.arrayBuffer(),wb=XLSX.read(data,{type:'array'}),sheet=wb.Sheets[wb.SheetNames[0]],rows=XLSX.utils.sheet_to_json(sheet,{header:1,defval:''}),students=parseExcelRows(rows);
+   const XLSXLib=await ensureXlsx();
+   const data=await file.arrayBuffer(),wb=XLSXLib.read(data,{type:'array'}),sheet=wb.Sheets[wb.SheetNames[0]],rows=XLSXLib.utils.sheet_to_json(sheet,{header:1,defval:''}),students=parseExcelRows(rows);
    if(!students.length){alert('No he trobat alumnes. Revisa que la primera fila tingui columnes com Nom i Cognoms.');return}
    const preview=students.slice(0,80).map((s,i)=>'<tr><td>'+((i+1))+'</td><td>'+esc(s.firstName)+'</td><td>'+esc(s.lastName)+'</td><td>'+esc(s.studentNumber)+'</td></tr>').join('');
    const more=students.length>80?'... i '+(students.length-80)+' més':'';
