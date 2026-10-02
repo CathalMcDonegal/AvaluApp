@@ -4,10 +4,12 @@ const esc=(v='')=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'
 const safeFile=(v)=>String(v||'alumne').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9_-]+/g,'_');
 
 function reportData(c,g,s,term){
- const items=store.getItems(), vals=s.assessments[term]||{};
+ const rubric=c.rubric?.[term]||null;
+ const items=rubric?.items||store.getItems().map(i=>({...i,descriptors:{}}));
+ const vals=s.assessments[term]||{};
  const termNames={1:'1a Avaluació',2:'2a Avaluació'};
- const rows=items.map(i=>({code:i.code,name:i.name,value:vals[i.id]?.value||''}));
- return {global:false,items,vals,rows,termName:termNames[term],studentName:(s.firstName+' '+s.lastName).trim(),course:c.name,group:g.name,year:c.year,observations:s.observations[term]||''};
+ const rows=items.map(i=>({code:i.code,name:i.name,category:i.category||'',value:String(vals[i.id]?.value||'').toUpperCase(),descriptor:i.descriptors?.[String(vals[i.id]?.value||'').toUpperCase()]||''}));
+ return {items,vals,rows,termName:termNames[term],studentName:(s.firstName+' '+s.lastName).trim(),course:c.name,group:g.name,year:c.year,observations:s.observations[term]||''};
 }
 function downloadDoc(buffer,name){
  const blob=new Blob([buffer],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
@@ -15,14 +17,11 @@ function downloadDoc(buffer,name){
 }
 async function generateWord(c,g,s,term){
  if(!window.docx){alert('No s’ha pogut carregar el generador Word.');return}
- const {Document,Packer,Paragraph,TextRun,Table,TableRow,TableCell,WidthType,AlignmentType,ShadingType}=window.docx;
+ const {Document,Packer,Paragraph,TextRun,Table,TableRow,TableCell,WidthType,AlignmentType}=window.docx;
  const d=reportData(c,g,s,term);
  const cell=(text,bold=false)=>new TableCell({children:[new Paragraph({children:[new TextRun({text:String(text||'—'),bold})]})]});
- const rows=[];
- {
-   rows.push(new TableRow({children:[cell('Codi',true),cell('Ítem d’avaluació',true),cell('Valoració',true)]}));
-   d.rows.forEach(i=>rows.push(new TableRow({children:[cell(i.code),cell(i.name),cell(i.value)]})));
- }
+ const rows=[new TableRow({children:[cell('Ítem',true),cell('Codi',true),cell('Descripció de la gradació',true)]})];
+ d.rows.forEach(i=>rows.push(new TableRow({children:[cell(i.name),cell(i.value||'—'),cell(i.descriptor||i.value||'—')]})));
  const doc=new Document({sections:[{properties:{page:{margin:{top:1080,right:900,bottom:1080,left:900}}},children:[
    new Paragraph({alignment:AlignmentType.CENTER,children:[new TextRun({text:'AvaluApp',bold:true,size:34})]}),
    new Paragraph({alignment:AlignmentType.CENTER,children:[new TextRun({text:d.termName,size:22})]}),
@@ -41,8 +40,49 @@ async function generateWord(c,g,s,term){
 }
 function render(){const courses=store.getCourses();app.innerHTML=`<header class="topbar"><div class="brand"><span class="brand-mark">A</span>AvaluApp</div></header><main class="container"><section class="hero"><div><p class="eyebrow">GESTIÓ EDUCATIVA</p><h1>Els meus cursos</h1><p class="muted">Organitza cursos, classes i alumnes.</p></div><div class="hero-actions"><button class="secondary" id="demo">Carregar mostra (25)</button><button class="primary" id="new">+ Crear curs</button></div></section><section class="stats"><div class="stat"><strong>${courses.length}</strong><span>Cursos</span></div><div class="stat"><strong>${courses.reduce((n,c)=>n+c.groups.length,0)}</strong><span>Classes</span></div><div class="stat"><strong>${courses.reduce((n,c)=>n+c.groups.reduce((m,g)=>m+g.students.length,0),0)}</strong><span>Alumnes</span></div></section><section class="course-grid">${courses.map(c=>`<article class="card course-card" data-id="${c.id}"><div class="card-icon">📚</div><div class="course-main"><h2>${esc(c.name)}</h2><p>${esc(c.year)} · ${c.groups.length} classes</p></div><span>→</span></article>`).join('')||'<div class="empty"><h2>Comencem?</h2><p>Crea el teu primer curs.</p></div>'}</section></main>`;document.querySelector('#new').onclick=createCourse;document.querySelector('#demo').onclick=()=>{const c=store.seedDemo();if(c){course(c.id)}else{alert('La mostra ja està carregada.')}};document.querySelectorAll('.course-card').forEach(x=>x.onclick=()=>course(x.dataset.id))}
 function createCourse(){const name=prompt('Nom del curs');if(!name?.trim())return;const year=prompt('Curs acadèmic','2026-2027')||'2026-2027';const c=store.addCourse({name:name.trim(),year});course(c.id)}
-function course(id){const c=store.getCourses().find(x=>x.id===id);app.innerHTML=`<header class="topbar"><button class="back" id="back">←</button><div class="brand"><span class="brand-mark">A</span>${esc(c.name)}</div></header><main class="container"><section class="hero"><div><p class="eyebrow">${esc(c.year)}</p><h1>Classes</h1></div><button class="primary" id="newgroup">+ Crear classe</button></section><section class="group-grid">${c.groups.map(g=>`<article class="card group-card"><div class="group-badge">${esc(g.name[0])}</div><div><h2>${esc(g.name)}</h2><p>${g.students.length} alumnes</p></div><button class="secondary add" data-id="${g.id}">+ Alumne</button><button class="secondary open" data-id="${g.id}">Obrir →</button><button class="danger icon-delete delete-group" data-id="${g.id}" title="Esborrar classe" aria-label="Esborrar classe">🗑</button></article>`).join('')||'<div class="empty"><h2>Encara no hi ha classes</h2></div>'}</section></main>`;document.querySelector('#back').onclick=render;document.querySelector('#newgroup').onclick=()=>{const n=prompt('Nom de la classe');if(n?.trim()){store.addGroup(id,{name:n.trim()});course(id)}};document.querySelectorAll('.add').forEach(b=>b.onclick=()=>addStudent(id,b.dataset.id));document.querySelectorAll('.open').forEach(b=>b.onclick=()=>group(id,b.dataset.id));document.querySelectorAll('.delete-group').forEach(b=>b.onclick=e=>{e.stopPropagation();if(confirm('Esborrar aquesta classe i tots els seus alumnes? Aquesta acció no es pot desfer.')){store.deleteGroup(id,b.dataset.id);course(id)}})}
+function course(id){
+ const c=store.getCourses().find(x=>x.id===id),rubric=c.rubric;
+ app.innerHTML=`<header class="topbar"><button class="back" id="back">←</button><div class="brand"><span class="brand-mark">A</span>${esc(c.name)}</div></header><main class="container"><section class="hero"><div><p class="eyebrow">${esc(c.year)}</p><h1>Classes</h1><p class="muted">${rubric?'Graella de gradació vinculada · AE · AN · AS · NA':'Encara no hi ha cap graella de gradació vinculada.'}</p></div><div class="hero-actions"><button class="secondary" id="rubric">📊 ${rubric?'Canviar graella':'Adjuntar graella'}</button><button class="primary" id="newgroup">+ Crear classe</button></div></section><section class="group-grid">${c.groups.map(g=>`<article class="card group-card"><div class="group-badge">${esc(g.name[0])}</div><div><h2>${esc(g.name)}</h2><p>${g.students.length} alumnes</p></div><button class="secondary add" data-id="${g.id}">+ Alumne</button><button class="secondary open" data-id="${g.id}">Obrir →</button><button class="danger icon-delete delete-group" data-id="${g.id}" title="Esborrar classe" aria-label="Esborrar classe">🗑</button></article>`).join('')||'<div class="empty"><h2>Encara no hi ha classes</h2></div>'}</section></main>`;
+ document.querySelector('#back').onclick=render;
+ document.querySelector('#rubric').onclick=()=>importRubric(id);
+ document.querySelector('#newgroup').onclick=()=>{const n=prompt('Nom de la classe');if(n?.trim()){store.addGroup(id,{name:n.trim()});course(id)}};
+ document.querySelectorAll('.add').forEach(b=>b.onclick=()=>addStudent(id,b.dataset.id));
+ document.querySelectorAll('.open').forEach(b=>b.onclick=()=>group(id,b.dataset.id));
+ document.querySelectorAll('.delete-group').forEach(b=>b.onclick=e=>{e.stopPropagation();if(confirm('Esborrar aquesta classe i tots els seus alumnes? Aquesta acció no es pot desfer.')){store.deleteGroup(id,b.dataset.id);course(id)}})
+}
 function normalizeHeader(v){return String(v||'').toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim()}
+function parseRubricSheet(rows,term){
+ if(!rows?.length)return null;
+ const codes=['AE','AN','AS','NA'];
+ const title=String(rows[0]?.[0]||'').trim()||('Avaluació '+term);
+ const items=[];
+ for(let r=2;r<rows.length;r++){
+   const category=String(rows[r]?.[0]||'').trim();
+   const name=String(rows[r]?.[1]||'').trim();
+   if(!name)continue;
+   const descriptors={};
+   codes.forEach((code,j)=>{const v=String(rows[r]?.[j+2]??'').trim();if(v)descriptors[code]=v});
+   if(Object.keys(descriptors).length)items.push({id:'rubric_'+term+'_'+items.length,category,name,code:name.slice(0,3).toUpperCase(),descriptors});
+ }
+ return {title,items,codes};
+}
+async function importRubric(courseId){
+ const input=document.createElement('input');input.type='file';input.accept='.xlsx,.xls,.csv';
+ input.onchange=async()=>{
+  const file=input.files?.[0];if(!file)return;
+  try{
+   const data=await file.arrayBuffer(),wb=XLSX.read(data,{type:'array'});
+   const sheets=wb.SheetNames;
+   const rubric={};
+   const termSheets=[sheets.find(s=>normalizeHeader(s).includes('1r')),sheets.find(s=>normalizeHeader(s).includes('2n'))];
+   if(!termSheets[0]||!termSheets[1]){alert('No he trobat les pestanyes de la 1a i 2a avaluació.');return}
+   termSheets.forEach((sheet,idx)=>{const rows=XLSX.utils.sheet_to_json(wb.Sheets[sheet],{header:1,defval:''});rubric[idx+1]=parseRubricSheet(rows,idx+1)});
+   if(!rubric[1]?.items.length&&!rubric[2]?.items.length){alert('No he trobat ítems de gradació a la graella.');return}
+   store.setRubric(courseId,rubric);alert('Graella de gradació importada i vinculada al curs. Les seves classes la compartiran.');course(courseId);
+  }catch(e){console.error(e);alert('No s’ha pogut llegir la graella.')}
+ };
+ input.click();
+}
 function parseExcelRows(rows){
  if(!rows.length)return [];
  const headers=rows[0].map(normalizeHeader);
@@ -88,5 +128,22 @@ function importExcel(courseId,groupId){
 }
 function addStudent(courseId,groupId){const first=prompt('Nom de l’alumne');if(!first?.trim())return;store.addStudent(groupId,{firstName:first.trim(),lastName:prompt('Cognoms')||''});course(courseId)}
 function group(courseId,groupId){const c=store.getCourses().find(x=>x.id===courseId),g=c.groups.find(x=>x.id===groupId);app.innerHTML=`<header class="topbar"><button class="back" id="back">←</button><div class="brand">${esc(c.name)} · ${esc(g.name)}</div></header><main class="container"><section class="hero"><div><p class="eyebrow">CLASSE</p><h1>${esc(g.name)}</h1><p class="muted">${g.students.length} alumnes</p></div><div class="hero-actions"><button class="primary" id="add">+ Afegir alumne</button><button class="secondary" id="import">Importar Excel</button></div></section><section class="student-list">${g.students.map(s=>`<article class="card student-row" data-id="${s.id}"><div class="avatar">${esc(s.firstName[0])}</div><div class="student-main"><h2>${esc(s.firstName+' '+s.lastName)}</h2><p>Obrir fitxa d’avaluació</p></div><button class="danger icon-delete delete-student" data-id="${s.id}" title="Esborrar alumne" aria-label="Esborrar alumne">🗑</button><span>→</span></article>`).join('')||'<div class="empty"><p>No hi ha alumnes.</p></div>'}</section></main>`;document.querySelector('#back').onclick=()=>course(courseId);document.querySelector('#add').onclick=()=>addStudent(courseId,groupId);document.querySelector('#import').onclick=()=>importExcel(courseId,groupId);document.querySelectorAll('.student-row').forEach(x=>x.onclick=()=>student(courseId,groupId,x.dataset.id));document.querySelectorAll('.delete-student').forEach(b=>b.onclick=e=>{e.stopPropagation();if(confirm('Esborrar aquest alumne i totes les seves avaluacions? Aquesta acció no es pot desfer.')){store.deleteStudent(groupId,b.dataset.id);group(courseId,groupId)}})}
-function student(courseId,groupId,studentId){const c=store.getCourses().find(x=>x.id===courseId),g=c.groups.find(x=>x.id===groupId),s=g.students.find(x=>x.id===studentId);let term='1';const tabs={1:'1a Avaluació',2:'2a Avaluació'};function draw(){const items=store.getItems(),vals=s.assessments[term]||{};app.innerHTML=`<header class="topbar"><button class="back" id="back">←</button><div class="brand"><span class="brand-mark">A</span> ${esc(s.firstName+' '+s.lastName)}</div></header><main class="container"><section class="student-head"><div class="avatar large">${esc(s.firstName[0])}</div><div><p class="eyebrow">${esc(g.name)} · ${esc(c.name)}</p><h1>${esc(s.firstName+' '+s.lastName)}</h1><p class="muted">Fitxa d’avaluació</p></div></section><nav class="tabs">${Object.entries(tabs).map(([k,v])=>`<button class="${term===k?'active':''}" data-term="${k}">${v}</button>`).join('')}</nav><section class="card assessment"><div class="assessment-title"><h2>${tabs[term]}</h2><button class="secondary" id="word">Generar Word</button></div><div class="item-table"><div class="item-head"><span>Ítem</span><span>Nota / valoració</span></div>${items.map(i=>`<div class="item-row"><div><strong>${esc(i.code)}</strong><span>${esc(i.name)}</span></div><input class="mark" data-item="${i.id}" value="${esc(vals[i.id]?.value||'')}" placeholder="—"></div>`).join('')}</div><label class="obs"><span>Observacions</span><textarea id="obs">${esc(s.observations[term]||'')}</textarea></label></section></main>`;document.querySelector('#back').onclick=()=>group(courseId,groupId);document.querySelectorAll('[data-term]').forEach(b=>b.onclick=()=>{term=b.dataset.term;draw()});document.querySelectorAll('.mark').forEach(e=>e.onchange=()=>store.setAssessment(studentId,term,e.dataset.item,e.value));document.querySelector('#obs').onchange=e=>store.setObservation(studentId,term,e.target.value);document.querySelector('#word').onclick=()=>generateWord(c,g,s,term)}draw()}
+function student(courseId,groupId,studentId){
+ const c=store.getCourses().find(x=>x.id===courseId),g=c.groups.find(x=>x.id===groupId),s=g.students.find(x=>x.id===studentId);
+ let term='1';const tabs={1:'1a Avaluació',2:'2a Avaluació'};
+ function draw(){
+  const rubric=c.rubric?.[term],items=rubric?.items||store.getItems().map(i=>({...i,descriptors:{}})),vals=s.assessments[term]||{};
+  app.innerHTML=`<header class="topbar"><button class="back" id="back">←</button><div class="brand"><span class="brand-mark">A</span> ${esc(s.firstName+' '+s.lastName)}</div></header><main class="container"><section class="student-head"><div class="avatar large">${esc(s.firstName[0])}</div><div><p class="eyebrow">${esc(g.name)} · ${esc(c.name)}</p><h1>${esc(s.firstName+' '+s.lastName)}</h1><p class="muted">Fitxa d’avaluació · ${rubric?'AE · AN · AS · NA':'Configura primer la graella del curs'}</p></div></section><nav class="tabs">${Object.entries(tabs).map(([k,v])=>`<button class="${term===k?'active':''}" data-term="${k}">${v}</button>`).join('')}</nav><section class="card assessment"><div class="assessment-title"><div><h2>${tabs[term]}</h2><p class="muted">${rubric?.title||''}</p></div><button class="secondary" id="word">Generar Word</button></div><div class="item-table">${items.map(i=>{const value=String(vals[i.id]?.value||'').toUpperCase(),desc=i.descriptors?.[value]||'';return `<div class="item-row rubric-row"><div><strong>${esc(i.category||'')}</strong><span>${esc(i.name)}</span></div><div class="mark-wrap"><input class="mark" maxlength="2" data-item="${i.id}" list="grade-codes" value="${esc(value)}" placeholder="AE"><small class="descriptor" data-desc="${i.id}">${esc(desc)}</small></div></div>`}).join('')||'<p class="muted">No hi ha ítems configurats per aquesta avaluació.</p>'}</div><datalist id="grade-codes"><option value="AE"></option><option value="AN"></option><option value="AS"></option><option value="NA"></option></datalist><label class="obs"><span>Observacions</span><textarea id="obs">${esc(s.observations[term]||'')}</textarea></label></section></main>`;
+  document.querySelector('#back').onclick=()=>group(courseId,groupId);
+  document.querySelectorAll('[data-term]').forEach(b=>b.onclick=()=>{term=b.dataset.term;draw()});
+  document.querySelectorAll('.mark').forEach(e=>e.onchange=()=>{
+   const value=e.value.trim().toUpperCase();
+   if(value && !['AE','AN','AS','NA'].includes(value)){alert('La gradació ha de ser AE, AN, AS o NA.');e.value=vals[e.dataset.item]?.value||'';return}
+   store.setAssessment(studentId,term,e.dataset.item,value);const d=e.parentElement.querySelector('.descriptor');d.textContent=items.find(i=>i.id===e.dataset.item)?.descriptors?.[value]||'';
+  });
+  document.querySelector('#obs').onchange=e=>store.setObservation(studentId,term,e.target.value);
+  document.querySelector('#word').onclick=()=>generateWord(c,g,s,term);
+ }
+ draw()
+}
 render();
