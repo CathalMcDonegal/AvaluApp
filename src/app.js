@@ -165,3 +165,6 @@ function student(courseId,groupId,studentId){
  draw()
 }
 render();
+
+// Registra el Service Worker perquè AvaluApp es pugui instal·lar com una aplicació d'escriptori.
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{}));}
