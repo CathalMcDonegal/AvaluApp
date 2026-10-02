@@ -1,6 +1,12 @@
 import { store } from './store.js';
 const app=document.querySelector('#app');
 const esc=(v='')=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+let deferredInstallPrompt=null;
+const installControl=()=>'<button type="button" class="install-app secondary" title="Instal·lar AvaluApp">⬇ Instal·la AvaluApp</button>';
+const installApp=async()=>{if(deferredInstallPrompt){deferredInstallPrompt.prompt();await deferredInstallPrompt.userChoice;deferredInstallPrompt=null;return}alert('Per instal·lar AvaluApp com una aplicació d’escriptori, obre el menú ⋮ del navegador i tria «Instal·la AvaluApp» o «Instal·la aplicació».');};
+document.addEventListener('click',e=>{if(e.target.closest('.install-app'))installApp()});
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPrompt=e});
+window.addEventListener('appinstalled',()=>{deferredInstallPrompt=null});
 const safeFile=(v)=>String(v||'alumne').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9_-]+/g,'_');
 
 function reportData(c,g,s,term){
