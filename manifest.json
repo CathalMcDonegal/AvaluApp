@@ -6,11 +6,12 @@
   "scope": "./",
   "display": "standalone",
   "orientation": "landscape-primary",
-  "background_color": "#f8fafc",
-  "theme_color": "#7c3aed",
+  "background_color": "#e8edf3",
+  "theme_color": "#0f172a",
   "lang": "ca",
   "categories": ["education", "productivity"],
   "icons": [
-    {"src":"./assets/icon.png","sizes":"128x128","type":"image/png","purpose":"any maskable"}
+    {"src":"./assets/icon.png","sizes":"128x128","type":"image/png","purpose":"any maskable"},
+    {"src":"./assets/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
   ]
 }
