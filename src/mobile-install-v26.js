@@ -1,0 +1,11 @@
+(()=>{
+  let deferredInstallPrompt=null,installBanner=null,statusTimer=null;
+  const isInstalled=()=>window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;
+  const hide=()=>{if(installBanner)installBanner.classList.remove('show')};
+  const status=(text,ms=3500)=>{let el=document.querySelector('#pwa-install-status');if(!el){el=document.createElement('div');el.id='pwa-install-status';el.style.cssText='position:fixed;left:12px;right:12px;bottom:150px;z-index:10002;background:#111827;color:#fff;padding:14px 16px;border-radius:14px;text-align:center;font:700 14px system-ui;box-shadow:0 12px 30px #0007';document.body.appendChild(el)}el.textContent=text;clearTimeout(statusTimer);statusTimer=setTimeout(()=>el.remove(),ms)};
+  const openChrome=()=>{const url='https://cathalmcdonegal.github.io/AvaluApp/';const intent='intent://cathalmcdonegal.github.io/AvaluApp/#Intent;scheme=https;package=com.android.chrome;end';try{status('Obrint AvaluApp al Chrome complet…');window.location.href=intent;setTimeout(()=>{try{window.location.href=url}catch{}},1200)}catch{window.location.href=url}};
+  const init=()=>{installBanner=document.querySelector('#install-banner');if(!installBanner||isInstalled())return;document.querySelector('#btn-do-install')?.addEventListener('click',async()=>{if(deferredInstallPrompt){const p=deferredInstallPrompt;deferredInstallPrompt=null;try{p.prompt();const c=await p.userChoice;if(c?.outcome==='accepted')status('Instal·lant AvaluApp…',2500)}catch{}hide();return}openChrome()});document.querySelector('#btn-dismiss-install')?.addEventListener('click',()=>{hide();try{sessionStorage.setItem('avaluapp-install-dismissed','1')}catch{}});try{if(!sessionStorage.getItem('avaluapp-install-dismissed'))setTimeout(()=>{if(!deferredInstallPrompt)installBanner?.classList.add('show')},1200)}catch{setTimeout(()=>installBanner?.classList.add('show'),1200)}};
+  window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPrompt=e;installBanner?.classList.add('show')});
+  window.addEventListener('appinstalled',()=>{deferredInstallPrompt=null;hide();status('AvaluApp instal·lada!',2500)});
+  window.addEventListener('DOMContentLoaded',init);
+})();
