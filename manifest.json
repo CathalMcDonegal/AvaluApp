@@ -5,13 +5,17 @@
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "orientation": "landscape-primary",
+  "display_override": ["window-controls-overlay", "standalone"],
+  "orientation": "any",
   "background_color": "#e8edf3",
   "theme_color": "#0f172a",
   "lang": "ca",
   "categories": ["education", "productivity"],
+  "shortcuts": [
+    {"name":"Calendari","short_name":"Calendari","url":"./calendar.html","icons":[{"src":"./assets/icon.svg","sizes":"128x128"}]}
+  ],
   "icons": [
     {"src":"./assets/icon.png","sizes":"128x128","type":"image/png","purpose":"any maskable"},
-    {"src":"./assets/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+    {"src":"./assets/icon.svg","sizes":"128x128","type":"image/svg+xml","purpose":"any maskable"}
   ]
 }
