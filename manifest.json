@@ -3,7 +3,7 @@
   "name": "AvaluApp",
   "short_name": "AvaluApp",
   "description": "Gestió i avaluació d'alumnes",
-  "start_url": "./",
+  "start_url": "./?v=22",
   "scope": "./",
   "display": "standalone",
   "display_override": ["window-controls-overlay", "standalone"],
@@ -13,9 +13,11 @@
   "lang": "ca",
   "categories": ["education", "productivity"],
   "shortcuts": [
-    {"name":"Calendari","short_name":"Calendari","url":"./calendar.html","icons":[{"src":"./assets/icon.svg","sizes":"128x128"}]}
+    {"name":"Calendari","short_name":"Calendari","url":"./calendar.html","icons":[{"src":"./assets/icon-192.svg","sizes":"192x192","type":"image/svg+xml"}]}
   ],
   "icons": [
+    {"src":"./assets/icon-192.svg","sizes":"192x192","type":"image/svg+xml","purpose":"any maskable"},
+    {"src":"./assets/icon-512.svg","sizes":"512x512","type":"image/svg+xml","purpose":"any maskable"},
     {"src":"./assets/icon.png","sizes":"128x128","type":"image/png","purpose":"any maskable"},
     {"src":"./assets/icon.svg","sizes":"128x128","type":"image/svg+xml","purpose":"any maskable"}
   ]
