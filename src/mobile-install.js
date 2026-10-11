@@ -1,59 +1,18 @@
-(() => {
-  let deferredPrompt = null;
-  let button = null;
-
-  const isInstalled = () =>
-    window.matchMedia('(display-mode: standalone)').matches ||
-    window.navigator.standalone === true;
-
-  const isMobile = () => window.matchMedia('(max-width: 650px)').matches;
-
-  function removeButton() {
-    if (button) button.remove();
-    button = null;
-  }
-
-  function createButton() {
-    if (!isMobile() || isInstalled() || button) return;
-
-    button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'mobile-install-button';
-    button.innerHTML = '📲 <span>Instal·la AvaluApp</span>';
-    button.title = 'Instal·la AvaluApp al mòbil';
-    button.addEventListener('click', async () => {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        await deferredPrompt.userChoice;
-        deferredPrompt = null;
-        removeButton();
-        return;
-      }
-
-      const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
-      if (ios) {
-        alert('Per instal·lar AvaluApp: toca Compartir → Afegir a la pantalla d’inici.');
-      } else {
-        alert('Obre el menú ⋮ del navegador i tria «Instal·la AvaluApp» o «Afegir a la pantalla d’inici».');
-      }
-    });
+(()=>{
+  let deferredPrompt=null,button=null;
+  const installed=()=>window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;
+  const remove=()=>{if(button)button.remove();button=null};
+  const create=()=>{
+    if(installed()||button)return;
+    button=document.createElement('button');button.type='button';button.className='pwa-install';button.innerHTML='📲 Instal·la AvaluApp';button.title='Instal·la AvaluApp';
+    button.onclick=async()=>{
+      if(deferredPrompt){deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;remove();return}
+      const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);
+      alert(ios?'Per instal·lar AvaluApp: toca Compartir → Afegir a la pantalla d’inici.':'Si el navegador no mostra directament la instal·lació, obre el menú ⋮ i tria «Instal·la aplicació» o «Afegir a la pantalla d’inici».');
+    };
     document.body.appendChild(button);
-  }
-
-  window.addEventListener('beforeinstallprompt', event => {
-    event.preventDefault();
-    deferredPrompt = event;
-    createButton();
-  });
-
-  window.addEventListener('appinstalled', () => {
-    deferredPrompt = null;
-    removeButton();
-  });
-
-  window.addEventListener('DOMContentLoaded', createButton);
-  window.addEventListener('resize', () => {
-    if (isInstalled() || !isMobile()) removeButton();
-    else createButton();
-  });
+  };
+  window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;create()});
+  window.addEventListener('appinstalled',()=>{deferredPrompt=null;remove()});
+  window.addEventListener('DOMContentLoaded',()=>setTimeout(create,500));
 })();
