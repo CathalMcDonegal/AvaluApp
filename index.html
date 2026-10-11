@@ -11,7 +11,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>AvaluApp</title>
-  <link rel="manifest" href="./manifest.json?v=23">
+  <link rel="manifest" href="./manifest.json?v=24">
   <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./styles.css">
   <link rel="stylesheet" href="./src/student-profile.css">
@@ -23,57 +23,25 @@
     .school-settings{margin:0 0 26px;background:linear-gradient(135deg,#fff,#f0f9ff);border:1px solid #bae6fd;border-radius:20px;padding:20px;box-shadow:0 8px 24px #0f172a0a}
     .school-settings-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
     .school-settings-icon{width:44px;height:44px;border-radius:13px;background:#e0f2fe;display:grid;place-items:center;font-size:22px}
-    .school-settings h2{margin:0;font-size:18px}
-    .school-settings p{margin:3px 0 0;color:#64748b;font-size:13px}
-    .school-settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .school-settings label{display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:800;color:#475569}
-    .school-settings input{width:100%;padding:11px 12px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;font:inherit;color:#172033}
-    .school-settings input:focus{outline:3px solid #bae6fd;border-color:#38bdf8}
-    .pwa-install-banner{position:fixed;left:16px;right:16px;bottom:16px;z-index:10000;background:#111827;color:#fff;border:1px solid #334155;border-radius:18px;padding:14px;box-shadow:0 16px 40px #0007;display:flex;align-items:center;gap:14px;font-family:system-ui,sans-serif}
-    .pwa-install-copy{flex:1;font-size:14px;line-height:1.35}
-    .pwa-install-actions{display:flex;gap:8px;flex-shrink:0}
-    .pwa-install-actions button{border:0;border-radius:12px;padding:12px 14px;font-weight:900;font-size:14px;cursor:pointer}
-    .pwa-install-do{background:#22c55e;color:#052e16}
-    .pwa-install-dismiss{background:#334155;color:#fff}
+    .school-settings h2{margin:0;font-size:18px}.school-settings p{margin:3px 0 0;color:#64748b;font-size:13px}
+    .school-settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.school-settings label{display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:800;color:#475569}
+    .school-settings input{width:100%;padding:11px 12px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;font:inherit;color:#172033}.school-settings input:focus{outline:3px solid #bae6fd;border-color:#38bdf8}
+    .pwa-install-banner{position:fixed;left:16px;right:16px;bottom:16px;z-index:10000;background:#111827;color:#fff;border:1px solid #334155;border-radius:18px;padding:14px;box-shadow:0 16px 40px #0007;display:flex;align-items:center;gap:14px;font-family:system-ui,sans-serif}.pwa-install-copy{flex:1;font-size:14px;line-height:1.35}.pwa-install-actions{display:flex;gap:8px;flex-shrink:0}.pwa-install-actions button{border:0;border-radius:12px;padding:12px 14px;font-weight:900;font-size:14px;cursor:pointer}.pwa-install-do{background:#22c55e;color:#052e16}.pwa-install-dismiss{background:#334155;color:#fff}
     @media(max-width:650px){.school-settings-grid{grid-template-columns:1fr}.pwa-install-banner{left:12px;right:12px;bottom:12px;display:block}.pwa-install-copy{margin-bottom:10px}.pwa-install-actions{display:grid;grid-template-columns:1fr 1fr}.pwa-install-actions button{width:100%}}
   </style>
-  <script type="module">
-    import * as docx from 'https://cdn.jsdelivr.net/npm/docx@9.8.1/+esm';
-    window.docx = docx;
-  </script>
+  <script type="module">import * as docx from 'https://cdn.jsdelivr.net/npm/docx@9.8.1/+esm';window.docx=docx;</script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="./src/mobile-install.js?v=23"></script>
-  <script src="./src/class-calendar-links.js"></script>
-  <script src="./src/class-dashboard.js"></script>
-  <script src="./src/student-profile.js"></script>
-  <script src="./src/class-summary.js"></script>
-  <script src="./src/class-grid-enhancer.js"></script>
-  <script src="./src/class-grid-stats.js"></script>
-  <script src="./src/report-enhancer.js"></script>
-  <script src="./src/class-reports.js"></script>
+  <script src="./src/mobile-install.js?v=24"></script>
+  <script src="./src/class-calendar-links.js"></script><script src="./src/class-dashboard.js"></script><script src="./src/student-profile.js"></script><script src="./src/class-summary.js"></script><script src="./src/class-grid-enhancer.js"></script><script src="./src/class-grid-stats.js"></script><script src="./src/report-enhancer.js"></script><script src="./src/class-reports.js"></script>
 </head>
 <body>
-  <div id="app"></div>
-  <a class="global-calendar" href="./calendar.html" title="Obrir calendari">📅 <span>Calendari</span></a>
-  <script type="module" src="./src/app.js?v=23"></script>
-  <script src="./src/remove-demo.js?v=23"></script>
+  <div id="app"></div><a class="global-calendar" href="./calendar.html" title="Obrir calendari">📅 <span>Calendari</span></a>
+  <script type="module" src="./src/app.js?v=24"></script><script src="./src/remove-demo.js?v=24"></script>
   <script>
   (()=>{
-    if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js?v=23',{scope:'./',updateViaCache:'none'}).then(r=>r.update()).catch(err=>console.warn('AvaluApp SW:',err)))}
-    const KEY='avaluapp-profile-v1';
-    const read=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch{return {}}};
-    const esc=v=>String(v||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
-    const mount=()=>{
-      const app=document.querySelector('#app');
-      if(!app||document.querySelector('.school-settings')||!app.querySelector('.course-grid'))return;
-      const d=read();
-      const s=document.createElement('section');s.className='school-settings';
-      s.innerHTML=`<div class="school-settings-head"><div class="school-settings-icon">🏫</div><div><h2>Dades del centre</h2><p>Apareixeran en els informes i queden guardades en aquest dispositiu.</p></div></div><div class="school-settings-grid"><label>Nom de l'escola<input id="school-name" value="${esc(d.school||'')}" placeholder="Ex. Escola Sant Jordi"></label><label>Nom de la professora<input id="teacher-name" value="${esc(d.teacher||'')}" placeholder="Ex. Marta Puig"></label></div>`;
-      const hero=app.querySelector('.hero');hero?.after(s);
-      const save=()=>localStorage.setItem(KEY,JSON.stringify({school:s.querySelector('#school-name').value.trim(),teacher:s.querySelector('#teacher-name').value.trim()}));
-      s.querySelectorAll('input').forEach(i=>i.addEventListener('input',save));
-    };
-    new MutationObserver(mount).observe(document.body,{childList:true,subtree:true});window.addEventListener('DOMContentLoaded',mount);
+    if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js?v=24',{scope:'./',updateViaCache:'none'}).then(r=>r.update()).catch(err=>console.warn('AvaluApp SW:',err)))}
+    const KEY='avaluapp-profile-v1';const read=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch{return {}}};const esc=v=>String(v||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+    const mount=()=>{const app=document.querySelector('#app');if(!app||document.querySelector('.school-settings')||!app.querySelector('.course-grid'))return;const d=read();const s=document.createElement('section');s.className='school-settings';s.innerHTML=`<div class="school-settings-head"><div class="school-settings-icon">🏫</div><div><h2>Dades del centre</h2><p>Apareixeran en els informes i queden guardades en aquest dispositiu.</p></div></div><div class="school-settings-grid"><label>Nom de l'escola<input id="school-name" value="${esc(d.school||'')}" placeholder="Ex. Escola Sant Jordi"></label><label>Nom de la professora<input id="teacher-name" value="${esc(d.teacher||'')}" placeholder="Ex. Marta Puig"></label></div>`;app.querySelector('.hero')?.after(s);const save=()=>localStorage.setItem(KEY,JSON.stringify({school:s.querySelector('#school-name').value.trim(),teacher:s.querySelector('#teacher-name').value.trim()}));s.querySelectorAll('input').forEach(i=>i.addEventListener('input',save));};new MutationObserver(mount).observe(document.body,{childList:true,subtree:true});window.addEventListener('DOMContentLoaded',mount);
   })();
   </script>
 </body>
