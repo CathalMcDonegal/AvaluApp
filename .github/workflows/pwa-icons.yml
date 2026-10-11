@@ -17,11 +17,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install SVG renderer
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y librsvg2-bin
+
       - name: Generate 192px and 512px PNG icons
         run: |
           mkdir -p assets
-          convert -background none -density 384 assets/icon.svg -resize 192x192 assets/icon-192.png
-          convert -background none -density 384 assets/icon.svg -resize 512x512 assets/icon-512.png
+          rsvg-convert -w 192 -h 192 assets/icon.svg -o assets/icon-192.png
+          rsvg-convert -w 512 -h 512 assets/icon.svg -o assets/icon-512.png
           file assets/icon-192.png assets/icon-512.png
 
       - name: Commit generated icons
