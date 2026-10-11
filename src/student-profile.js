@@ -1,38 +1,30 @@
 (() => {
-  const STORE_KEY='avaluapp-data-v1';
-  let last=null;
-  const esc=v=>String(v||'').replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#039;'}[c]));
-  const read=()=>{try{return JSON.parse(localStorage.getItem(STORE_KEY)||'{}')}catch{return {}}};
+  const KEY='avaluapp-data-v1';
+  let active=null;
+  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+  const read=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch{return {}}};
   const findStudent=()=>{
-    const data=read();
-    const h=document.querySelector('.student-head h1');
-    if(!h)return null;
-    const name=h.textContent.trim().toLowerCase();
+    const data=read(),h=document.querySelector('.student-head h1'); if(!h)return null;
+    const name=(h.textContent||'').trim().toLowerCase();
     for(const c of data.courses||[])for(const g of c.groups||[])for(const s of g.students||[]){
       if(`${s.firstName||''} ${s.lastName||''}`.trim().toLowerCase()===name)return {c,g,s};
-    }
-    return null;
+    } return null;
   };
-  const gradeCount=(s,term)=>{
-    const vals=s.assessments?.[term]||{};
-    const a=Object.values(vals).map(v=>String(v?.value||'').toUpperCase()).filter(Boolean);
-    return {done:a.length,total:Math.max(a.length,1)};
+  const stats=(s,t)=>{
+    const vals=s.assessments?.[t]||{},all=Object.values(vals).map(v=>String(v?.value||'').toUpperCase()).filter(Boolean);
+    return {done:all.length,final:s.finalGrades?.[t]||'',aa:s.aaPi?.[t]||'',obs:(s.observations?.[t]||'').trim()};
   };
+  const label=v=>({AE:'Assoliment excel·lent',AN:'Assoliment notable',AS:'Assoliment satisfactori',NA:'No assoliment'})[String(v||'').toUpperCase()]||'Pendent';
   const add=()=>{
     if(document.querySelector('.student-profile-summary'))return;
-    const info=findStudent(); if(!info)return;
-    const {s}=info;
-    const current=document.querySelector('.tabs button.active')?.textContent||'1a Avaluació';
-    const term=current.includes('2a')?'2':'1';
-    const prev=term==='2'?'1':null;
-    const done=gradeCount(s,term), prevDone=prev?gradeCount(s,prev):null;
-    const final=s.finalGrades?.[term]||'—';
-    const aa=s.aaPi?.[term]||'—';
-    const obs=(s.observations?.[term]||'').trim();
+    const info=findStudent();if(!info)return; const {c,g,s}=info;
+    const current=document.querySelector('.tabs button.active')?.textContent||'1a Avaluació',t=current.includes('2a')?'2':'1',a=stats(s,1),b=stats(s,2),cur=t==='2'?b:a;
+    const evolution=a.final&&b.final ? `${a.final} → ${b.final}` : (b.final||a.final||'—');
     const box=document.createElement('section');box.className='student-profile-summary';
-    box.innerHTML=`<div class="profile-summary-title"><div><p class="eyebrow">RESUM DE L’AVALUACIÓ</p><h2>Visió ràpida</h2></div><span class="profile-term">${term==='2'?'2a':'1a'} Avaluació</span></div><div class="profile-summary-grid"><div class="profile-stat"><span>📊 Ítems valorats</span><strong>${done.done}</strong><small>de ${done.total}</small></div><div class="profile-stat"><span>🏁 Nota final</span><strong>${esc(final)}</strong><small>valoració manual</small></div><div class="profile-stat"><span>📌 AA/PI</span><strong>${esc(aa)}</strong><small>${aa==='X'?'marcat':'sense marca'}</small></div><div class="profile-stat"><span>📝 Observacions</span><strong>${obs?'Sí':'—'}</strong><small>${obs?'Hi ha anotacions':'Cap observació'}</small></div></div>${prev?`<div class="profile-evolution"><strong>↗ Evolució</strong><span>1a: ${prevDone.done} ítems valorats · 2a: ${done.done} ítems valorats</span></div>`:''}`;
-    const head=document.querySelector('.student-head');head.insertAdjacentElement('afterend',box);last=box;
+    box.innerHTML=`<div class="profile-summary-head"><div><p class="eyebrow">FITXA DE L’ALUMNE</p><h2>Visió general</h2><p class="muted">${esc(c.name)} · ${esc(g.name)}</p></div><div class="profile-final"><span>FINAL actual</span><strong>${esc(b.final||a.final||'—')}</strong></div></div><div class="profile-summary-grid"><article><span>📘</span><div><strong>1a Avaluació</strong><small>${a.done} ítems valorats · ${esc(a.final||'Sense final')}</small><b>${esc(label(a.final||''))}</b></div></article><article><span>📗</span><div><strong>2a Avaluació</strong><small>${b.done} ítems valorats · ${esc(b.final||'Sense final')}</small><b>${esc(label(b.final||''))}</b></div></article><article><span>📈</span><div><strong>Evolució</strong><small>1a → 2a Avaluació</small><b>${esc(evolution)}</b></div></article><article><span>🎯</span><div><strong>AA / PI</strong><small>Valoració actual</small><b>${esc(cur.aa||'—')}</b></div></article></div><div class="profile-observations"><div><strong>📝 Observacions</strong><p>${esc(cur.obs||'Encara no hi ha observacions.')}</p></div><button class="secondary profile-word" type="button">📄 Generar informe Word</button></div>`;
+    const assessment=document.querySelector('.assessment'); if(assessment)assessment.parentElement.insertBefore(box,assessment);
+    box.querySelector('.profile-word')?.addEventListener('click',()=>document.querySelector('#word')?.click()); active=box;
   };
-  new MutationObserver(()=>{if(last&&!document.body.contains(last))last=null;add()}).observe(document.body,{childList:true,subtree:true});
+  new MutationObserver(()=>{if(active&&!document.body.contains(active))active=null;add()}).observe(document.body,{childList:true,subtree:true});
   window.addEventListener('DOMContentLoaded',add);
 })();
