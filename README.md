@@ -2,25 +2,23 @@
 
 Gestió de cursos, classes, alumnes i avaluacions.
 
-## Funcionalitats
+## Funcionalitats actuals
 - Cursos i classes
-- Alumnes
+- Alumnes amb importació Excel/CSV
 - Fitxa individual
-- Tres trimestres i avaluació global
-- Ítems d'avaluació
-- Observacions
-- PWA responsive
+- **1a Avaluació i 2a Avaluació**
+- Graella de classe amb AE / AN / AS / NA i variants
+- Graella de gradació vinculada al curs
+- Observacions, AA/PI i FINAL manual
+- Generació d'informes Word
+- PWA instal·lable en ordinador i mòbil
+- Botó d'instal·lació automàtica al mòbil quan és possible
+- **Calendari independent per a cada classe**
+- Sortides, activitats, exàmens, treballs, tutories i altres esdeveniments
+- Accés directe al calendari des de cada classe
 
-## Properes fases
-Importació Excel/PDF, editor d'ítems, informes Word amb plantilles, impressió/PDF i còpies de seguretat.
+## Calendari
+El calendari desa les activitats al dispositiu i separa els esdeveniments per classe. Permet navegar per mesos, afegir activitats i eliminar-les.
 
-
-## Plantilles d'informes
-
-Les plantilles base es troben a `templates/`:
-- `1r-trimestre.html`
-- `2n-trimestre.html`
-- `3r-trimestre.html`
-- `global.html`
-
-Placeholders comuns: `{{student_name}}`, `{{course}}`, `{{group}}`, `{{academic_year}}`, `{{term}}`, `{{assessment_rows}}`, `{{term_summary_rows}}`, `{{global_rows}}` i `{{observations}}`.
+## Informes Word
+Els informes inclouen l'alumne, curs, classe, curs acadèmic, AA/PI, FINAL, criteris de gradació, descriptor corresponent i observacions.
