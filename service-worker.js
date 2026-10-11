@@ -1,5 +1,5 @@
-const CACHE='avaluapp-v15';
-const APP_SHELL=['./','./index.html','./calendar.html','./styles.css','./src/student-profile.css','./src/class-summary.css','./src/app.js','./src/store.js','./src/mobile-install.js','./src/class-calendar-links.js','./src/class-dashboard.js','./src/student-profile.js','./src/class-summary.js','./src/report-enhancer.js','./src/class-reports.js','./manifest.json','./assets/icon.svg','./assets/icon.png'];
+const CACHE='avaluapp-v16';
+const APP_SHELL=['./','./index.html','./calendar.html','./styles.css','./src/student-profile.css','./src/class-summary.css','./src/class-grid-enhancer.css','./src/app.js','./src/store.js','./src/mobile-install.js','./src/class-calendar-links.js','./src/class-dashboard.js','./src/student-profile.js','./src/class-summary.js','./src/class-grid-enhancer.js','./src/report-enhancer.js','./src/class-reports.js','./manifest.json','./assets/icon.svg','./assets/icon.png'];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(c=>c.addAll(APP_SHELL)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
 self.addEventListener('fetch',event=>{if(event.request.method!=='GET')return;event.respondWith(caches.match(event.request).then(cached=>cached||fetch(event.request).then(response=>{const copy=response.clone();caches.open(CACHE).then(c=>c.put(event.request,copy));return response}).catch(()=>caches.match('./index.html'))))});
